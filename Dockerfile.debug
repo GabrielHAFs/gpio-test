@@ -1,0 +1,42 @@
+FROM --platform=linux/arm64 torizon/debian:2-bullseye
+
+# GDB-remote (we can use any port there)
+EXPOSE 6502
+
+
+
+ARG SSHUSERNAME=torizon
+
+
+# Make sure we don't get notifications we can't answer during building.
+ENV DEBIAN_FRONTEND="noninteractive"
+
+
+
+# commands that should be run before installing packages (ex: to add a feed or keys)
+
+
+# your regular RUN statements here
+# Install required packages
+RUN apt-get -q -y update \
+    && apt-get -q -y install \
+    gdbserver \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN if [ ! -z "libgpiod2 gpiod " ]; then \
+    apt-get -q -y update \
+    && apt-get -q -y install libgpiod2 gpiod  \
+    && rm -rf /var/lib/apt/lists/* ; \
+    fi
+
+
+RUN usermod -a -G gpio torizon
+
+
+
+USER torizon
+
+WORKDIR /gpio-toggle
+
+CMD stdbuf -oL -eL gdbserver 0.0.0.0:6502 /gpio-toggle/gpio-toggle 
