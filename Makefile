@@ -1,11 +1,12 @@
 DEPS = gpio-toggle.h
 OBJ = gpio-toggle.o
+LIBS = -lgpiod
 
 %.o : %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS) 
 
 gpio-toggle: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) -lgpiod
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 install: gpio-toggle
 	mkdir -p $(WORKDIR)
